@@ -1,0 +1,324 @@
+:root
+{
+	--red: #fd0014;
+	--white: #ffffff;
+	--yellow: #F6DB28;
+}
+
+.promotion-options
+{
+    display: flex;
+    flex-wrap: wrap;
+    justify-content: space-between;
+    gap: 20px; /* Adjust the gap as needed */
+}
+
+.promotion-option
+{
+    background-color: #fff;
+    box-shadow: 0 4px 8px rgba(0, 0, 0, 0.1);
+    padding: 20px;
+    flex: 1 1 calc(20% - 20px);
+    box-sizing: border-box;
+    margin-bottom: 20px;
+    border-radius: 8px;
+    position: relative;
+    cursor: pointer;
+}
+
+.promotion-option h4, .promotion-option p, .promotion-option ul
+{
+    margin-bottom: 10px;
+}
+
+.promotion-option h4
+{
+    font-size: 15px;
+	text-align: center;
+}
+
+.promotion-option ul
+{
+    padding-left: 0;
+	margin-left: 2px;
+}
+
+.promotion-option input[type="checkbox"]
+{
+    position: absolute;
+    top: 10px;
+    right: 10px;
+    cursor: pointer;
+    appearance: none;
+    width: 13px;
+    height: 13px;
+    border: 2px solid #ccc;
+    border-radius: 50%;
+    outline: none;
+}
+
+.promotion-option input
+{
+    min-height: 13px !important;
+    border-color: #d2d7de !important;
+    box-shadow: none !important;
+    color: #546b7e !important;
+    padding: 0 !important;
+}
+
+.promotion-option input[type="checkbox"]:checked
+{
+    background-color: #ef5d50;
+}
+
+.promotion-option.selected
+{
+    box-shadow: 0 4px 8px rgba(0, 0, 255, 0.3);
+}
+
+@media (max-width: 1200px)
+{
+    .promotion-option {
+        flex: 1 1 calc(33.333% - 20px); /* 3 cards per row for medium screens */
+    }
+}
+
+@media (max-width: 900px)
+{
+    .promotion-option
+	{
+        flex: 1 1 calc(50% - 20px); /* 2 cards per row for small screens */
+    }
+}
+
+@media (max-width: 600px) {
+    .promotion-option
+	{
+        flex: 1 1 100%; /* 1 card per row for very small screens */
+    }
+}
+
+/* Checkout page promotional items table */
+.promotion-options-table
+{
+    width: 100% !important;
+    border-collapse: collapse !important;
+    margin-top: 10px !important;
+}
+
+.promotion-options-table td
+{
+    padding: 5px 10px !important;
+}
+
+.promotion-options-table .promotion-option-title
+{
+    text-align: left !important;
+	padding: 5px !important;
+}
+
+.promotion-options-table .promotion-option-price
+{
+    text-align: right !important;
+}
+
+.promotion-options-table .promotion-option-row
+{
+	border-bottom: 0 !important;
+}
+
+.variation-PromotionOptions
+{
+	padding: 5px !important;
+}
+
+.woocommerce-page div.nsl-container[data-align="left"]
+{
+    margin-top: 0 !important;
+}
+
+.woocommerce-page div.nsl-container .nsl-button-default div.nsl-button-label-container
+{
+    margin: 0 !important;
+}
+
+.woocommerce-page div.nsl-container div.nsl-container-buttons a[data-plugin="nsl"]
+{
+    margin-right: 20px !important;
+}
+
+/* Hide the additional promotion options section when all promotions are selected */
+#additional-promotion-options.hidden
+{
+    display: none;
+}
+
+/* Hide already-promoted promotion options */
+.promotion-option.already-promoted
+{
+    display: none;
+}
+
+.promotion-details-container
+{
+    display: flex;
+    flex-wrap: wrap;
+}
+
+.promotion-detail
+{
+	position: relative;
+    flex: 1 1 calc(50% - 10px); /* Each item takes up exactly 50% of the container's width minus the margins */
+    box-sizing: border-box;
+    padding: 10px;
+    margin: 5px;
+    border: 1px solid #ccc;
+}
+
+/* Styles for the banners */
+.promotion-detail .active-banner, .promotion-detail .expired-banner
+{
+    position: absolute;
+    bottom: 0px;
+    right: 0px;
+    padding: 0px 10px;
+    color: white;
+    font-weight: bold;
+    z-index: 1;
+	font-size: 11px;
+}
+
+/* Specific styles for each banner */
+.promotion-detail .active-banner
+{
+    background-color: green;
+}
+
+.promotion-detail .expired-banner
+{
+    background-color: red;
+}
+
+/* Styles for responsiveness */
+@media (max-width: 600px)
+{
+    .promotion-detail
+	{
+		flex: 1 1 100%; /* Stack on smaller screens */
+    }
+}
+
+._is_highlighted .directorypress-listing-text-content-wrap
+{
+    border-bottom: 5px solid var(--red);
+}
+
+._is_highlighted .directorypress-listing-text-content-wrap span,
+._is_highlighted .directorypress-listing-text-content-wrap p,
+._is_highlighted .directorypress-listing-text-content-wrap a,
+._is_highlighted .directorypress-listing-text-content-wrap i
+{
+	
+}
+
+/* Ensure the listing item holder has relative positioning */
+.directorypress-listing-item-holder
+{
+    position: relative;
+}
+
+/* Add the featured badge to listings with the _is_featured class */
+.directorypress-listing._is_featured .directorypress-listing-item-holder::before
+{
+    content: url('/wp-content/plugins/promotion-options/images/featured.png');
+    position: absolute;
+    top: 0;
+    right: 20px;
+    z-index: 10;
+    width: 50px;
+    height: 50px;
+	display: block;
+}
+
+/* Add the urgent badge to listings with the _is_urgent_listing class */
+.directorypress-listing._is_urgent_listing .directorypress-listing-item-holder::after
+{
+    content: url(/wp-content/plugins/promotion-options/images/urgent.png);
+    position: absolute;
+    bottom: 20px;
+    right: 20px;
+    z-index: 10;
+    width: 50px;
+    height: 50px;
+	display: block;
+}
+
+._is_free_listing .price, 
+._is_home_spotlight .price,
+._is_urgent_listing .price ,
+._is_highlighted .price ,
+._is_featured .price
+
+{
+    left: 0 !important;
+}
+
+.listing-post-style-listview_mod .list-author-content-area
+{
+    height: 140px !important;
+}
+
+.listing-post-style-listview_mod  .list-author-content-area
+{
+    padding: 5px 15px !important;
+}
+
+.list-author-content-area
+{
+    min-height: 140px !important;>
+}
+
+.listing-next, .listing-pre
+{
+    cursor: pointer;
+}
+
+.directorypress-location-in-metabox-wrap
+{
+    border-bottom: 0;
+}
+
+.listing-post-style-18 .directorypress-listing-item-holder
+{
+    border-radius: 0;
+}
+
+.row>*
+{
+    padding-right: 0;
+    padding-left: 0;
+}
+
+.password-reset-icons
+{
+	margin-bottom: 1em;
+    margin-left: 0;
+    list-style-type: disc;
+    display: flex;
+	list-style-type: none;
+}
+
+.password-reset-icons li:first-child
+{
+	margin-left: 0;
+}
+
+.user-registration-ur-lost-password div.nsl-container[data-align="left"]
+{
+    margin-top: -50px;
+}
+
+.user-registration-ur-lost-password .nsl-container-buttons
+{
+	margin-top: 20px;
+}
