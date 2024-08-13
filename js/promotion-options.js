@@ -140,3 +140,80 @@ jQuery(document).ready(function($)
         });
     });
 });
+
+/* Nonce in review submission AJAX request */
+document.addEventListener('DOMContentLoaded', function() {
+    const stars = document.querySelectorAll('.rating-stars input');
+    stars.forEach(star => {
+        star.addEventListener('change', function() {
+            const rating = this.value;
+            stars.forEach(s => s.nextElementSibling.classList.toggle('selected', s.value <= rating));
+        });
+    });
+
+    /* Handle form submission via AJAX */
+    document.querySelector('#review-form form').addEventListener('submit', function(e) {
+        e.preventDefault(); /* Prevent the form from submitting normally */
+
+        const reviewName = document.querySelector('input[name="review-name"]').value;
+        const reviewEmail = document.querySelector('input[name="review-email"]').value;
+        const rating = document.querySelector('input[name="rating"]:checked') ? document.querySelector('input[name="rating"]:checked').value : '';
+        const comment = document.querySelector('#comment').value;
+        const listingId = document.querySelector('input[name="listing_id"]').value;
+
+        console.log('Review Name:', reviewName);
+        console.log('Review Email:', reviewEmail);
+        console.log('Rating:', rating);
+        console.log('Comment:', comment);
+        console.log('Listing ID:', listingId);
+
+        jQuery.post(ajax_object.ajax_url, {
+            action: 'submit_review',
+            nonce: ajax_object.nonce,
+            'review-name': reviewName,
+            'review-email': reviewEmail,
+            'rating': rating,
+            'comment': comment,
+            'listing_id': listingId
+        }, function(response) {
+            if (response.success) {
+                alert(response.data.message);
+                /* Implement cleanup on successful submission */
+            } else {
+                alert(response.data.message);
+            }
+        });
+    });
+});
+
+
+document.addEventListener('DOMContentLoaded', function() {
+    const stars = document.querySelectorAll('.rating-stars input');
+    const labels = document.querySelectorAll('.rating-stars label');
+    
+    stars.forEach(star => {
+        star.addEventListener('change', function() {
+            const rating = this.value;
+            labels.forEach(label => {
+                label.classList.toggle('selected', label.getAttribute('for').slice(-1) <= rating);
+            });
+        });
+    });
+
+    /* Rating form stars hover effect */
+    const ratingStars = document.querySelector('.rating-stars');
+    ratingStars.addEventListener('mouseover', function(e) {
+        if (e.target.tagName === 'LABEL') {
+            const rating = e.target.getAttribute('for').slice(-1);
+            labels.forEach(label => {
+                label.classList.toggle('hover', label.getAttribute('for').slice(-1) <= rating);
+            });
+        }
+    });
+
+    ratingStars.addEventListener('mouseout', function() {
+        labels.forEach(label => {
+            label.classList.remove('hover');
+        });
+    });
+});

@@ -4,6 +4,7 @@ Plugin Name: Promotion Options
 Description: A plugin to add and manage promotion options for listings.
 Version: 2.3.4
 Author: Robert June
+Text Domain: promotion-options
 */
 
 /* Ensure that WordPress functions are available */
@@ -35,12 +36,17 @@ $sales_manager = new Sales_Manager();
 function enqueue_promotion_assets()
 {
     $plugin_url = plugin_dir_url(__FILE__);
-	/* Enqueue the CSS file */
+    /* Enqueue the CSS file */
     wp_enqueue_style('promotion-options-css', $plugin_url . 'css/promotion-options.css');
-	/* Enqueue the JavaScript file, ensuring it's loaded in the footer */
+    /* Enqueue the JavaScript file, ensuring it's loaded in the footer */
     wp_enqueue_script('promotion-options-js', $plugin_url . 'js/promotion-options.js', array('jquery'), null, true);
-	/* Localize the script with the AJAX URL */
-	wp_localize_script('promotion-options-js', 'ajax_object', array('ajax_url' => admin_url('admin-ajax.php')));
+    /* Generate a nonce for security */
+    $nonce = wp_create_nonce('submit_review_nonce');
+    /* Localize the script with the AJAX URL and nonce */
+    wp_localize_script('promotion-options-js', 'ajax_object', array(
+        'ajax_url' => admin_url('admin-ajax.php'),
+        'nonce'    => $nonce
+    ));
 }
 add_action('wp_enqueue_scripts', 'enqueue_promotion_assets');
 

@@ -322,3 +322,145 @@
 {
 	margin-top: 20px;
 }
+
+.rating-stars input
+{
+	display: none;
+}
+
+.rating-stars label
+{
+	font-size: 1.5em;
+	color: #ccc;
+	cursor: pointer;
+	transition: color 0.2s ease;
+}
+
+.rating-stars label:hover,
+.rating-stars label.hover,
+.rating-stars label.selected,
+.rating-stars label:hover ~ label
+{
+    color: #f39c12;
+}
+
+.comment-form-comment #comment
+{
+	padding: 20px;
+}
+
+/* Container for review messages */
+.review-messages
+{
+    display: flex;
+    flex-direction: column;
+    padding: 20px;
+    max-width: 800px;
+    margin: auto;
+}
+
+/* Style for each review message */
+.review-message
+{
+    display: flex;
+    align-items: flex-start;
+    margin-bottom: 15px;
+}
+
+/* Style for current user reviews */
+.current-user
+{
+    align-self: flex-end;
+    flex-direction: row-reverse;
+}
+
+/* Style for other user reviews */
+.other-user
+{
+    align-self: flex-start;
+}
+
+/* Style for review author */
+.review-author
+{
+    display: flex;
+    align-items: center;
+    margin-right: 10px;
+    flex-direction: column;
+}
+
+/* Style for review author avatar */
+.review-author img
+{
+    border-radius: 50%;
+    width: 40px;
+    height: 40px;
+}
+
+/* Style for review author name */
+.review-author-name
+{
+    font-weight: bold;
+    margin-left: 5px;
+}
+
+/* Style for review content */
+.review-content
+{
+    max-width: 75%;
+    padding: 10px;
+    border-radius: 10px;
+    background-color: #f1f1f1;
+    box-shadow: 0 2px 5px rgba(0, 0, 0, 0.1);
+}
+
+/* Background color for current user reviews */
+.current-user .review-content
+{
+    background-color: #d1e7dd;
+}
+
+/* Background color for other user reviews */
+.other-user .review-content
+{
+    background-color: #ffffff;
+}
+
+/* Style for review rating */
+.review-rating
+{
+    margin-top: 5px;
+}
+
+/* Style for star icons */
+.review-rating i
+{
+    color: #f39c12; /* Gold color for stars */
+    margin-right: 2px;
+}
+
+/* Optional: Responsive adjustments */
+@media (max-width: 768px)
+{
+    .review-messages
+	{
+        padding: 10px;
+    }
+
+    .review-message
+	{
+        flex-direction: column;
+        align-items: flex-start;
+    }
+
+    .review-message.current-user
+	{
+        align-items: flex-end;
+    }
+
+    .review-content
+	{
+        max-width: 100%;
+        margin: 0;
+    }
+}
