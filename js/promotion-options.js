@@ -160,12 +160,14 @@ document.addEventListener('DOMContentLoaded', function() {
         const rating = document.querySelector('input[name="rating"]:checked') ? document.querySelector('input[name="rating"]:checked').value : '';
         const comment = document.querySelector('#comment').value;
         const listingId = document.querySelector('input[name="listing_id"]').value;
-
-        console.log('Review Name:', reviewName);
-        console.log('Review Email:', reviewEmail);
-        console.log('Rating:', rating);
-        console.log('Comment:', comment);
-        console.log('Listing ID:', listingId);
+        
+        /* Debug section 
+            console.log('Review Name:', reviewName);
+            console.log('Review Email:', reviewEmail);
+            console.log('Rating:', rating);
+            console.log('Comment:', comment);
+            console.log('Listing ID:', listingId);
+        */
 
         jQuery.post(ajax_object.ajax_url, {
             action: 'submit_review',
@@ -182,30 +184,15 @@ document.addEventListener('DOMContentLoaded', function() {
 				/* Hide the review form */
 				document.querySelector('#review-form').style.display = 'none';
 
-                /* Fetch and display updated reviews */
-                fetchUpdatedReviews(listingId);
+                /* Update the reviews section with the new reviews */
+                const reviewsContainer = document.querySelector('#reviews-container');
+                reviewsContainer.innerHTML = response.data.reviews_html;
             } else {
                 alert(response.data.message);
             }
         });
     });
-	
-	/* Function to fetch and display updated reviews */
-    function fetchUpdatedReviews(listingId) {
-        jQuery.post(ajax_object.ajax_url, {
-            action: 'get_reviews',
-            nonce: ajax_object.nonce,
-            'listing_id': listingId
-        }, function(response) {
-            if (response.success) {
-                document.querySelector('#reviews-container').innerHTML = response.data.reviews_html;
-            } else {
-                console.error('Failed to fetch updated reviews:', response.data.message);
-            }
-        });
-    }
 });
-
 
 document.addEventListener('DOMContentLoaded', function() {
     const stars = document.querySelectorAll('.rating-stars input');

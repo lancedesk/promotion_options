@@ -353,34 +353,15 @@ class Sales_Manager
 			add_comment_meta($comment_id, 'rating', $rating);
 		}
 
-		/* Return a success response */
-		wp_send_json_success(array('message' => 'Review submitted successfully.'));
-	}
-
-    /**
-     * Handles AJAX request to fetch reviews for a specific listing.
-     *
-     * @return void
-    */
-
-    public function handle_get_reviews() {
-        /* Check for nonce security */
-        if ( ! isset($_POST['nonce']) || ! wp_verify_nonce($_POST['nonce'], 'submit_review_nonce') ) {
-            wp_send_json_error(array('message' => 'Nonce verification failed.'));
-            return;
-        }
-
-        $listing_id = intval($_POST['listing_id']);
-
-        if (!$listing_id) {
-            wp_send_json_error(array('message' => 'Invalid listing ID.'));
-            return;
-        }
-
+        /* Fetch the updated reviews */
         $reviews_html = $this->display_alternating_reviews($listing_id);
 
+		/* Return a success response */
+		/* wp_send_json_success(array('message' => 'Review submitted successfully.')); */
+
+        /* Send response( HTML form including the recently submited review )  */
         wp_send_json_success(array('reviews_html' => $reviews_html));
-    }
+	}
 
 	/**
      * Checks if the current logged-in user has sent a review for a specific listing.
