@@ -476,3 +476,14 @@
     width: 200px;
     height: 200px;
 }
+
+.comment-form-rating
+{
+    display: flex;
+    justify-content: center;
+}
+
+.form-submit
+{
+    margin-top: 20px !important;
+}

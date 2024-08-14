@@ -155,6 +155,11 @@ document.addEventListener('DOMContentLoaded', function() {
     document.querySelector('#review-form form').addEventListener('submit', function(e) {
         e.preventDefault(); /* Prevent the form from submitting normally */
 
+        /* Disable the submit button */
+        const submitButton = document.querySelector('#submit-review-button');
+        submitButton.disabled = true;
+        submitButton.value = 'Submitting...';
+
         const reviewName = document.querySelector('input[name="review-name"]').value;
         const reviewEmail = document.querySelector('input[name="review-email"]').value;
         const rating = document.querySelector('input[name="rating"]:checked') ? document.querySelector('input[name="rating"]:checked').value : '';
@@ -187,8 +192,15 @@ document.addEventListener('DOMContentLoaded', function() {
                 /* Update the reviews section with the new reviews */
                 const reviewsContainer = document.querySelector('#reviews-container');
                 reviewsContainer.innerHTML = response.data.reviews_html;
+
+                /* Reset the submit button text */
+                submitButton.value = 'Submitted';
             } else {
                 alert(response.data.message);
+
+                /* Re-enable the submit button */
+                submitButton.disabled = false;
+                submitButton.value = 'Submit Review';
             }
         });
     });
