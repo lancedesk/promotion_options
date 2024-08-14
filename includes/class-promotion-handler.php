@@ -255,5 +255,38 @@ class Promotion_Handler
         $settings = $this->get_promotion_option_settings();
         return $this->charging_allowed() ? floatval($settings['new_listing_charge_amount']) : 0;
     }
+
+    /**
+     * Check if required profile fields are filled.
+     *
+     * @param int $user_id The user ID.
+     * @return array An array of missing fields or an empty array if all fields are filled.
+    */
+
+    public function check_required_fields($user_id)
+    {
+        $missing_fields = array();
+
+        /* List of required fields */
+        $required_fields = array(
+            'first_name' => __('First Name', 'promotion-options'),
+            'last_name'  => __('Last Name', 'promotion-options'),
+            'nickname'   => __('Nickname', 'promotion-options'),
+            'user_email' => __('Email', 'promotion-options'),
+        );
+
+        /* Check each required field */
+        foreach ($required_fields as $field_key => $field_label) {
+            $value = get_user_meta($user_id, $field_key, true);
+
+            /* If field is empty, add to missing fields */
+            if (empty($value)) {
+                $missing_fields[] = $field_label;
+            }
+        }
+
+        return $missing_fields;
+    }
+
 }
 ?>

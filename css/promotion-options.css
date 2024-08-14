@@ -487,3 +487,12 @@
 {
     margin-top: 20px !important;
 }
+
+@media (min-width: 992px)
+{
+    .page-id-217 .col-lg-8
+    {
+        width: 60.66666667%;
+        margin-left: 40px;
+    }
+}
