@@ -147,7 +147,7 @@ class Sales_Manager
         global $wpdb;
 
         /* Fetch all users who have messaged about the listing */
-        $messages_table = $wpdb->prefix . 'messages'; /* Replace with actual messages table name */
+        $messages_table = $wpdb->prefix . 'messages'; /* To replace with messages table name */
         $query = $wpdb->prepare(
             "SELECT DISTINCT user_id FROM $messages_table WHERE listing_id = %d",
             $listing_id
@@ -156,7 +156,7 @@ class Sales_Manager
 
         /* Send notifications or update message threads */
         foreach ($user_ids as $user_id) {
-            /* You can use WordPress notification functions or custom email functions */
+            /* WordPress notification functions or custom email functions */
             wp_mail(
                 get_the_author_meta('user_email', $user_id),
                 'Listing Sold Notification',
@@ -178,7 +178,7 @@ class Sales_Manager
             'post_title' => 'Review for Listing ' . $listing_id,
             'post_content' => $review_text,
             'post_status' => 'publish',
-            'post_type' => 'listing_review', /* Your custom post type for reviews */
+            'post_type' => 'listing_review', /* listing_review custom post type for reviews */
             'post_author' => $reviewer_id,
         );
         wp_insert_post($review_post);
@@ -221,6 +221,7 @@ class Sales_Manager
      * @param int $listing_id The ID of the listing.
      * @return int|false The creator ID if found, otherwise false.
     */
+
     public function get_listing_creator_id($listing_id)
     {
         global $wpdb;
@@ -479,6 +480,32 @@ class Sales_Manager
 
 		return $output;
 	}
+
+    /**
+     * Get the buyer ID for a specific listing.
+     *
+     * @param int $listing_id The ID of the listing.
+     * @return int|null The ID of the buyer or null if not found.
+    */
+
+    public function get_buyer_id_by_listing_id( $listing_id )
+    {
+        global $wpdb;
+
+        /* Sanitize the listing_id to ensure it's an integer */
+        $listing_id = intval( $listing_id );
+
+        /* Prepare the SQL query */
+        $query = $wpdb->prepare(
+            "SELECT buyer_id FROM wpax_listing_sales WHERE listing_id = %d LIMIT 1",
+            $listing_id
+        );
+
+        /* Execute the query and fetch the result */
+        $buyer_id = $wpdb->get_var( $query );
+
+        return $buyer_id ? intval( $buyer_id ) : null;
+    }
 
 }
 ?>

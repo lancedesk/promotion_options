@@ -464,3 +464,15 @@
         margin: 0;
     }
 }
+
+
+#directorypress-auhtor-page .author-detail-section .author-thumbnail img
+{
+    max-width: 180px;
+}
+
+#directorypress-auhtor-page .author-detail-section .author-thumbnail
+{
+    width: 200px;
+    height: 200px;
+}
