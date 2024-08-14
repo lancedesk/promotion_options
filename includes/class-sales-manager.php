@@ -14,6 +14,8 @@ class Sales_Manager
 		/* Adding review functionality */
 		add_action('wp_ajax_submit_review', array($this, 'handle_submit_review'));
 		add_action('wp_ajax_nopriv_submit_review', array($this, 'handle_submit_review'));
+        add_action('wp_ajax_get_reviews', array($this, 'handle_get_reviews'));
+        add_action('wp_ajax_nopriv_get_reviews', array($this, 'handle_get_reviews'));
 		add_filter('comment_form_default_fields', array($this, 'add_rating_field_to_comment_form'));
         add_action('comment_post', array($this, 'save_comment_rating'));
 		add_action('pre_comment_on_post', array($this, 'validate_comment_rating'), 10, 2);
@@ -354,6 +356,31 @@ class Sales_Manager
 		/* Return a success response */
 		wp_send_json_success(array('message' => 'Review submitted successfully.'));
 	}
+
+    /**
+     * Handles AJAX request to fetch reviews for a specific listing.
+     *
+     * @return void
+    */
+
+    public function handle_get_reviews() {
+        /* Check for nonce security */
+        if ( ! isset($_POST['nonce']) || ! wp_verify_nonce($_POST['nonce'], 'submit_review_nonce') ) {
+            wp_send_json_error(array('message' => 'Nonce verification failed.'));
+            return;
+        }
+
+        $listing_id = intval($_POST['listing_id']);
+
+        if (!$listing_id) {
+            wp_send_json_error(array('message' => 'Invalid listing ID.'));
+            return;
+        }
+
+        $reviews_html = $this->display_alternating_reviews($listing_id);
+
+        wp_send_json_success(array('reviews_html' => $reviews_html));
+    }
 
 	/**
      * Checks if the current logged-in user has sent a review for a specific listing.

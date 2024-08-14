@@ -177,13 +177,33 @@ document.addEventListener('DOMContentLoaded', function() {
             'listing_id': listingId
         }, function(response) {
             if (response.success) {
-                alert(response.data.message);
-                /* Implement cleanup on successful submission */
+                /* alert(response.data.message); */
+                /* Cleanup on successful submission */
+				/* Hide the review form */
+				document.querySelector('#review-form').style.display = 'none';
+
+                /* Fetch and display updated reviews */
+                fetchUpdatedReviews(listingId);
             } else {
                 alert(response.data.message);
             }
         });
     });
+	
+	/* Function to fetch and display updated reviews */
+    function fetchUpdatedReviews(listingId) {
+        jQuery.post(ajax_object.ajax_url, {
+            action: 'get_reviews',
+            nonce: ajax_object.nonce,
+            'listing_id': listingId
+        }, function(response) {
+            if (response.success) {
+                document.querySelector('#reviews-container').innerHTML = response.data.reviews_html;
+            } else {
+                console.error('Failed to fetch updated reviews:', response.data.message);
+            }
+        });
+    }
 });
 
 
