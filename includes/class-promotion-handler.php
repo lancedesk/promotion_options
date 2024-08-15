@@ -263,8 +263,17 @@ class Promotion_Handler
      * @return array An array of missing fields or an empty array if all fields are filled.
     */
 
-    public function check_required_fields($user_id)
+    public function check_required_fields ()
     {
+        /* Global variables */
+        global $current_user;
+
+        /* Retrieve user data from global variables */
+        $email      = $current_user->data->user_email;
+        $first_name = get_user_meta($current_user->ID, 'first_name', true);
+        $last_name  = get_user_meta($current_user->ID, 'last_name', true);
+        $nickname   = get_user_meta($current_user->ID, 'nickname', true);
+
         $missing_fields = array();
 
         /* List of required fields */
@@ -278,7 +287,23 @@ class Promotion_Handler
 
         /* Check each required field */
         foreach ($required_fields as $field_key => $field_label) {
-            $value = get_user_meta($user_id, $field_key, true);
+            switch ($field_key) {
+                case 'first_name':
+                    $value = $first_name;
+                    break;
+                case 'last_name':
+                    $value = $last_name;
+                    break;
+                case 'user_email':
+                    $value = $email;
+                    break;
+                case 'nickname':
+                    $value = $nickname;
+                    break;
+                default:
+                    $value = '';
+                    break;
+            }
 
             /* If field is empty, add to missing fields */
             if (empty($value)) {
@@ -287,6 +312,38 @@ class Promotion_Handler
         }
 
         return $missing_fields;
+    }
+
+    /**
+     * Counts the number of published listings for a given user.
+     *
+     * @param int $user_id The ID of the user.
+     * @return int The count of published listings for the user.
+    */
+
+    public function count_user_listings($user_id) 
+    {
+        global $wpdb;
+
+        /* Ensure the user ID is valid */
+        if (empty($user_id) || !is_numeric($user_id)) 
+        {
+            return 0;
+        }
+
+        /* Prepare SQL query to get count of published listings by user */
+        $query = $wpdb->prepare(
+            "SELECT COUNT(*) FROM {$wpdb->posts} 
+            WHERE post_type = 'dp_listing' 
+            AND post_author = %d 
+            AND post_status = 'publish'",
+            $user_id
+        );
+
+        /* Execute the query and return the count */
+        $count = $wpdb->get_var($query);
+
+        return intval($count);
     }
 
 }
