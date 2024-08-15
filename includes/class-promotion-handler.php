@@ -271,8 +271,9 @@ class Promotion_Handler
         $required_fields = array(
             'first_name' => __('First Name', 'promotion-options'),
             'last_name'  => __('Last Name', 'promotion-options'),
-            'nickname'   => __('Nickname', 'promotion-options'),
             'user_email' => __('Email', 'promotion-options'),
+            /* Optionally check for nickname field. */
+            /* 'nickname'   => __('Nickname', 'promotion-options'), */
         );
 
         /* Check each required field */
