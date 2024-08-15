@@ -520,10 +520,38 @@
 
 .missing-profile-fields p
 {
+    margin-bottom: 10px;
+}
+
+.missing-profile-fields ul
+{
+    display: flex;
+    list-style: none;
+    margin-left: 0;
+    margin-bottom: 10px;
+}
+
+.missing-profile-fields ul li
+{
+    font-size: 14px;
+}
+
+.missing-profile-fields ul li:first-child
+{
+    margin-left: 0;
+}
+
+#pacz-sidebar .missing-profile-fields p
+{
     text-align: center;
 }
 
-.missing-profile-fields a:hover
+#pacz-sidebar .missing-profile-fields a:hover
 {
     color: var(--white) !important;
+}
+
+.please-fill-profile
+{
+    color: var(--red);
 }

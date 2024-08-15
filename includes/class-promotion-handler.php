@@ -334,7 +334,7 @@ class Promotion_Handler
     public function empty_profile_notification($empty_profile_fields, $string)
     {
         echo '<div class="missing-profile-fields">';
-            echo '<p>Please fill in the following missing profile information to ' . $string . ':</p>';
+            echo '<p class="please-fill-profile">Please fill in the following missing profile information to ' . $string . '</p>';
             echo '<ul>';
                 foreach ($empty_profile_fields as $field) {
                     echo '<li>' . esc_html($field) . '</li>';
