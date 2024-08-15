@@ -268,11 +268,17 @@ class Promotion_Handler
         /* Global variables */
         global $current_user;
 
-        /* Retrieve user data from global variables */
-        $email      = $current_user->data->user_email;
-        $first_name = get_user_meta($current_user->ID, 'first_name', true);
-        $last_name  = get_user_meta($current_user->ID, 'last_name', true);
-        $nickname   = get_user_meta($current_user->ID, 'nickname', true);
+         /* Initialize variables */
+        $email = $first_name = $last_name = $nickname = '';
+
+         /* Check if current user is set and valid */
+        if (isset($current_user) && !empty($current_user->data->user_email)) {
+            /* Retrieve user data from global variables */
+            $email      = $current_user->data->user_email;
+            $first_name = get_user_meta($current_user->ID, 'first_name', true);
+            $last_name  = get_user_meta($current_user->ID, 'last_name', true);
+            $nickname   = get_user_meta($current_user->ID, 'nickname', true);
+        }
 
         $missing_fields = array();
 
