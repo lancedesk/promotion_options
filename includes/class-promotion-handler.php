@@ -321,6 +321,30 @@ class Promotion_Handler
     }
 
     /**
+     * Display a notification for missing profile fields.
+     *
+     * This method displays a notification to the user, listing the profile fields
+     * that need to be completed. The notification message is customized based on
+     * the string passed to the method.
+     *
+     * @param array  $empty_profile_fields - An array of missing profile fields.
+     * @param string $string - The dynamic string to include in the notification.
+    */
+
+    public function empty_profile_notification($empty_profile_fields, $string)
+    {
+        echo '<div class="missing-profile-fields">';
+            echo '<p>Please fill in the following missing profile information to ' . $string . ':</p>';
+            echo '<ul>';
+                foreach ($empty_profile_fields as $field) {
+                    echo '<li>' . esc_html($field) . '</li>';
+                }
+            echo '</ul>';
+            echo '<p><a href="https://icehockeymarket.com/my-dashboard/?directorypress_action=profile" target="_blank">Edit your profile here</a></p>';
+        echo '</div>';
+    }
+
+    /**
      * Counts the number of published listings for a given user.
      *
      * @param int $user_id The ID of the user.
