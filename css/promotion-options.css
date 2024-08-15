@@ -517,3 +517,13 @@
     margin-top: 10px;
     margin-bottom: 0;
 }
+
+.missing-profile-fields p
+{
+    text-align: center;
+}
+
+.missing-profile-fields a:hover
+{
+    color: var(--white) !important;
+}
