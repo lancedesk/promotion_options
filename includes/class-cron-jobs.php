@@ -6,6 +6,7 @@ class Cron_Jobs
     {
         add_action('wp', array($this, 'register_cron_job'));
         add_action('check_expired_promotions_event', array($this, 'check_and_update_expired_promotions'));
+        add_action('send_expiry_reminders_event', array($this, 'send_expiry_reminders'));
         register_activation_hook(__FILE__, array($this, 'activate_cron_job'));
         register_deactivation_hook(__FILE__, array($this, 'deactivate_cron_job'));
     }
@@ -16,6 +17,11 @@ class Cron_Jobs
         if (!wp_next_scheduled('check_expired_promotions_event'))
         {
             wp_schedule_event(time(), 'hourly', 'check_expired_promotions_event');
+        }
+
+        if (!wp_next_scheduled('send_expiry_reminders_event'))
+        {
+            wp_schedule_event(time(), 'daily', 'send_expiry_reminders_event');
         }
     }
 
@@ -83,6 +89,118 @@ class Cron_Jobs
         }
     }
 
+    /*
+    * Sends expiry reminder emails for listings nearing expiration.
+    */
+
+    public function send_expiry_reminders()
+    {
+        global $wpdb;
+
+        /* Fetch all listings with promotion expiration dates */
+        $listings = $wpdb->get_results("
+            SELECT ID, post_author
+            FROM {$wpdb->posts}
+            WHERE post_type = 'dp_listing'
+            AND post_status = 'publish'
+        ");
+
+        $three_days_from_now = new DateTime(current_time('Y-m-d H:i:s', 1), new DateTimeZone('UTC'));
+        $three_days_from_now->modify('+3 days');
+
+        $user_listings = [];
+
+        foreach ($listings as $listing)
+        {
+            $listing_id = $listing->ID;
+
+            /* Get marker expiration dates */
+            $marker_expiration_dates = get_field('marker_expiration_dates', $listing_id);
+            if ($marker_expiration_dates)
+            {
+                foreach ($marker_expiration_dates as $entry)
+                {
+                    $expiration_date = DateTime::createFromFormat('d/m/Y H:i:s', $entry['expiration_date'], new DateTimeZone('UTC'));
+
+                    if ($expiration_date && $expiration_date->format('Y-m-d') == $three_days_from_now->format('Y-m-d'))
+                    {
+                        $user_id = $listing->post_author;
+
+                        /* Collect listings for each user */
+                        if (!isset($user_listings[$user_id])) {
+                            $user_listings[$user_id] = [];
+                        }
+
+                        $user_listings[$user_id][] = [
+                            'listing_id' => $listing_id,
+                            'expiration_date' => $expiration_date
+                        ];
+                    }
+                }
+            }
+        }
+
+        /* Send email for each user */
+        foreach ($user_listings as $user_id => $listings)
+        {
+            $user_info = get_userdata($user_id);
+            $user_email = $user_info->user_email;
+
+            $this->send_combined_reminder_email($user_email, $listings, $user_info);
+        }
+    }
+
+    /* 
+    * Sends a combined reminder email to the user.
+    *
+    * @param string $user_email The email address of the user.
+    * @param array $listings Array of listings with expiration dates.
+    * @param WP_User $user_info The user information object.
+    */
+
+    private function send_combined_reminder_email($user_email, $listings, $user_info)
+    {
+        /* Determine if there's one or more listings */
+        $subject = (count($listings) > 1) ? "Reminder: Your listings are about to expire!" : "Reminder: Your listing is about to expire!";
+        
+        /* Get user's first name, username, or fallback to "User" */
+        $user_name = !empty($user_info->first_name) ? $user_info->first_name : 
+                    (!empty($user_info->user_login) ? $user_info->user_login : "User");
+
+        /* Start the message with the personalized greeting */
+        $message = "<p>Dear {$user_name},</p>";
+        $message .= "<p>The following listing" . (count($listings) > 1 ? "s are" : " is") . " set to expire soon:</p>";
+        $message .= "<ul>";
+
+        foreach ($listings as $listing_data) 
+        {
+            $listing_id = $listing_data['listing_id'];
+            $expiration_date = $listing_data['expiration_date'];
+
+            $listing_title = get_the_title($listing_id);
+            $listing_url = get_permalink($listing_id);
+            $featured_image = get_the_post_thumbnail_url($listing_id);
+            $total_views = (get_post_meta($listing_id, '_total_clicks', true) ? get_post_meta($listing_id, '_total_clicks', true) : 0);
+            $renewal_link = "https://icehockeymarket.com/my-dashboard/?directorypress_action=promote_listing&listing_id=" . $listing_id;
+
+            $message .= "
+                <li>
+                    <strong>{$listing_title}</strong> (Expires on: {$expiration_date->format('d/m/Y H:i:s')})
+                    <p><img src='{$featured_image}' alt='{$listing_title}'></p>
+                    <p>Number of views: {$total_views}</p>
+                    <p><a href='{$listing_url}'>View your listing</a></p>
+                    <p><a href='{$renewal_link}'>Click here to renew your listing</a></p>
+                </li>
+            ";
+        }
+
+        $message .= "</ul>";
+        $message .= "<p>Thank you!</p>";
+
+        wp_mail($user_email, $subject, $message);
+    }
+
+
     /* Activate Cron Job */
     public function activate_cron_job()
     {
@@ -94,5 +212,8 @@ class Cron_Jobs
     {
         $timestamp = wp_next_scheduled('check_expired_promotions_event');
         wp_unschedule_event($timestamp, 'check_expired_promotions_event');
+
+        $timestamp = wp_next_scheduled('send_expiry_reminders_event');
+        wp_unschedule_event($timestamp, 'send_expiry_reminders_event');
     }
 }
