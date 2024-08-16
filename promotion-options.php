@@ -502,8 +502,10 @@ function custom_woocommerce_auto_complete_order($order_id)
  *
  * @param int $order_id The order ID.
  */
+ 
 function handle_promotions_for_virtual_order($order_id)
 {
+
     /* Map promotion options to their field names */
     $promotion_mapping = array(
         'Highlighted Listing' => '_is_highlighted',
@@ -514,7 +516,6 @@ function handle_promotions_for_virtual_order($order_id)
     );
 
     $order = wc_get_order($order_id);
-    $promotion_dates = array();
 
     foreach ($order->get_items() as $item_id => $item)
     {
@@ -539,10 +540,13 @@ function handle_promotions_for_virtual_order($order_id)
             
             if ($listing_id)
             {
-                /* Calculate the expiry date and time based on validity period */
-                $listing_creation_date = get_post_time('Y-m-d H:i:s', true, $listing_id, 'UTC');
-                $expiry_datetime_utc = strtotime("+{$validity_period} days", strtotime($listing_creation_date));
+                /* Calculate the expiry date and time based on current date and validity period */
+                $current_datetime_utc = gmdate('Y-m-d H:i:s');
+                $expiry_datetime_utc = strtotime("+{$validity_period} days", strtotime($current_datetime_utc));
                 $expiry_datetime = gmdate('d/m/Y H:i:s', $expiry_datetime_utc); /* Combined date and time */
+                $expiry_date = gmdate('d/m/Y', $expiry_datetime_utc);
+                $expiry_time = gmdate('H:i:s', $expiry_datetime_utc);
+                $expiry_date_text = "Promotion valid until {$expiry_date} {$expiry_time}";
 
                 /* Retrieve existing promotions from the repeater field */
                 $existing_repeater = get_field('marker_expiration_dates', $listing_id);
@@ -574,8 +578,8 @@ function handle_promotions_for_virtual_order($order_id)
 
                 /* Update all promotion expiration dates and times using the repeater field */
                 update_field('marker_expiration_dates', $updated_repeater, $listing_id);
-				
-				/* Update listing promotion levels */
+                
+                /* Update listing promotion levels */
                 $current_promotion_levels = get_post_meta($listing_id, 'promotion_level', true);
                 $current_promotion_levels = !empty($current_promotion_levels) ? explode(',', $current_promotion_levels) : array();
 
@@ -588,7 +592,6 @@ function handle_promotions_for_virtual_order($order_id)
 
                     update_post_meta($listing_id, 'promotion_level', esc_html($promotion_levels_string));
                 }
-				
             }
         }
     }
