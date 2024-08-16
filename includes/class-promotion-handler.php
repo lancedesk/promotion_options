@@ -376,5 +376,34 @@ class Promotion_Handler
         return intval($count);
     }
 
+    /**
+     * Get the number of views for a specific listing.
+     *
+     * @param int $listing_id The ID of the listing.
+     * @return int The number of views the listing has received.
+    */
+
+    public function get_listing_views($listing_id)
+    {
+        /* Retrieve the number of views from post meta, default to 0 if not set */
+        $total_clicks = get_post_meta($listing_id, '_total_clicks', true);
+        return ($total_clicks) ? (int) $total_clicks : 0;
+    }
+
+    /**
+     * Display the number of views for a listing.
+     *
+     * @param object $listing The listing object.
+    */
+
+    public function display_listing_views($listing)
+    {
+        /* Get the listing views */
+        $views = $this->get_listing_views($listing->post->ID);
+
+        /* Display the views */
+        echo '<p class="listing-views">' . sprintf(__('Views: %d', 'classiadspro'), $views) . '</p>';
+    }
+
 }
 ?>
