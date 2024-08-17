@@ -88,15 +88,15 @@ class Cron_Jobs
             }
         }
     }
-
+   
     /*
     * Sends expiry reminder emails for listings nearing expiration.
     */
-
+    
     public function send_expiry_reminders()
     {
         global $wpdb;
-
+    
         /* Fetch all listings with promotion expiration dates */
         $listings = $wpdb->get_results("
             SELECT ID, post_author
@@ -104,16 +104,17 @@ class Cron_Jobs
             WHERE post_type = 'dp_listing'
             AND post_status = 'publish'
         ");
-
-        $three_days_from_now = new DateTime(current_time('Y-m-d H:i:s', 1), new DateTimeZone('UTC'));
-        $three_days_from_now->modify('+3 days');
-
+    
+        /* Date object for comparison (current time plus 6 days) */
+        $six_days_from_now = new DateTime(current_time('Y-m-d H:i:s', 1), new DateTimeZone('UTC'));
+        $six_days_from_now->modify('+6 days');
+    
         $user_listings = [];
-
+    
         foreach ($listings as $listing)
         {
             $listing_id = $listing->ID;
-
+    
             /* Get marker expiration dates */
             $marker_expiration_dates = get_field('marker_expiration_dates', $listing_id);
             if ($marker_expiration_dates)
@@ -121,35 +122,45 @@ class Cron_Jobs
                 foreach ($marker_expiration_dates as $entry)
                 {
                     $expiration_date = DateTime::createFromFormat('d/m/Y H:i:s', $entry['expiration_date'], new DateTimeZone('UTC'));
-
-                    if ($expiration_date && $expiration_date->format('Y-m-d') == $three_days_from_now->format('Y-m-d'))
+    
+                    if ($expiration_date && $expiration_date->format('Y-m-d') == $six_days_from_now->format('Y-m-d'))
                     {
                         $user_id = $listing->post_author;
-
+                        $promotion_level = $entry['promotion_level'];
+    
                         /* Collect listings for each user */
-                        if (!isset($user_listings[$user_id])) {
+                        if (!isset($user_listings[$user_id]))
+                        {
                             $user_listings[$user_id] = [];
                         }
-
-                        $user_listings[$user_id][] = [
-                            'listing_id' => $listing_id,
-                            'expiration_date' => $expiration_date
-                        ];
+    
+                        if (!isset($user_listings[$user_id][$listing_id]))
+                        {
+                            $user_listings[$user_id][$listing_id] = [
+                                'title' => get_the_title($listing_id),
+                                'url' => get_permalink($listing_id),
+                                'views' => get_post_meta($listing_id, '_total_clicks', true) ?: 0,
+                                'featured_image' => get_the_post_thumbnail_url($listing_id),
+                                'expiries' => []
+                            ];
+                        }
+    
+                        $user_listings[$user_id][$listing_id]['expiries'][$promotion_level] = $expiration_date->format('d/m/Y H:i:s');
                     }
                 }
             }
         }
-
+    
         /* Send email for each user */
         foreach ($user_listings as $user_id => $listings)
         {
             $user_info = get_userdata($user_id);
             $user_email = $user_info->user_email;
-
+    
             $this->send_combined_reminder_email($user_email, $listings, $user_info);
         }
     }
-
+    
     /* 
     * Sends a combined reminder email to the user.
     *
@@ -157,49 +168,60 @@ class Cron_Jobs
     * @param array $listings Array of listings with expiration dates.
     * @param WP_User $user_info The user information object.
     */
-
+    
     private function send_combined_reminder_email($user_email, $listings, $user_info)
     {
+         /* Set the sender name and email */
+        $from_name = 'Ice Hockey Market';
+        $from_email = 'noreply@icehockeymarket.com';
+        
+        /* HTML email headers */
+        $headers = [
+            'Content-Type: text/html; charset=UTF-8',
+            'From: ' . $from_name . ' <' . $from_email . '>',
+        ];
+    
         /* Determine if there's one or more listings */
         $subject = (count($listings) > 1) ? "Reminder: Your listings are about to expire!" : "Reminder: Your listing is about to expire!";
         
         /* Get user's first name, username, or fallback to "User" */
         $user_name = !empty($user_info->first_name) ? $user_info->first_name : 
                     (!empty($user_info->user_login) ? $user_info->user_login : "User");
-
+    
         /* Start the message with the personalized greeting */
         $message = "<p>Dear {$user_name},</p>";
         $message .= "<p>The following listing" . (count($listings) > 1 ? "s are" : " is") . " set to expire soon:</p>";
         $message .= "<ul>";
-
-        foreach ($listings as $listing_data) 
+    
+        foreach ($listings as $listing_id => $listing_info) 
         {
-            $listing_id = $listing_data['listing_id'];
-            $expiration_date = $listing_data['expiration_date'];
-
-            $listing_title = get_the_title($listing_id);
-            $listing_url = get_permalink($listing_id);
-            $featured_image = get_the_post_thumbnail_url($listing_id);
-            $total_views = (get_post_meta($listing_id, '_total_clicks', true) ? get_post_meta($listing_id, '_total_clicks', true) : 0);
-            $renewal_link = "https://icehockeymarket.com/my-dashboard/?directorypress_action=promote_listing&listing_id=" . $listing_id;
-
-            $message .= "
-                <li>
-                    <strong>{$listing_title}</strong> (Expires on: {$expiration_date->format('d/m/Y H:i:s')})
-                    <p><img src='{$featured_image}' alt='{$listing_title}'></p>
-                    <p>Number of views: {$total_views}</p>
-                    <p><a href='{$listing_url}'>View your listing</a></p>
-                    <p><a href='{$renewal_link}'>Click here to renew your listing</a></p>
-                </li>
-            ";
+            $listing_title = $listing_info['title'];
+            $listing_url = $listing_info['url'];
+            $listing_views = $listing_info['views'];
+            $listing_image = !empty($listing_info['featured_image']) ? $listing_info['featured_image'] : DEFAULT_LISTING_IMAGE;
+            
+            $message .= '<li>';
+            $message .= '<strong>' . $listing_title . '</strong>';
+    
+            /* Handle multiple expiries on the same day */
+            $message .= '<ul>';
+            foreach ($listing_info['expiries'] as $promotion_level => $expiry_date)
+            {
+                $message .= '<li>' . $promotion_level . ' - Expires on: ' . $expiry_date . '</li>';
+            }
+            $message .= '</ul>';
+    
+            $message .= "<p><img src='{$listing_image}' alt='{$listing_title}' width='150px' height='150px'></p>";
+            $message .= "<p>Number of views: {$listing_views}</p>";
+            $message .= "<p><a href='{$listing_url}'>View your listing</a></p>";
+            $message .= "<p><a href='https://icehockeymarket.com/my-dashboard/?directorypress_action=promote_listing&listing_id={$listing_id}'>Click here to renew your listing</a></p>";
+            $message .= '</li>';
         }
-
-        $message .= "</ul>";
-        $message .= "<p>Thank you!</p>";
-
-        wp_mail($user_email, $subject, $message);
-    }
-
+    
+        $message .= "</ul><p>Thank you!</p>";
+    
+        wp_mail($user_email, $subject, $message, $headers);
+    }    
 
     /* Activate Cron Job */
     public function activate_cron_job()
