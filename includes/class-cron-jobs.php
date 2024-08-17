@@ -129,7 +129,7 @@ class Cron_Jobs
     
         /* Date object for comparison (current time plus 6 days) */
         $six_days_from_now = new DateTime(current_time('Y-m-d H:i:s', 1), new DateTimeZone('UTC'));
-        $six_days_from_now->modify('+6 days');
+        $six_days_from_now->modify('+2 days');
     
         $user_listings = [];
     
@@ -234,7 +234,7 @@ class Cron_Jobs
                 $friendly_name = $this->get_promotion_name($promotion_level);
                 $message .= '<li>' . $friendly_name . ' - Expires on: ' . $expiry_date . '</li>';
             }
-            
+
             $message .= '</ul>';
     
             $message .= "<p><img src='{$listing_image}' alt='{$listing_title}' width='150px' height='150px'></p>";
