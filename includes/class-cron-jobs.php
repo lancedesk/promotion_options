@@ -88,6 +88,28 @@ class Cron_Jobs
             }
         }
     }
+
+    /*
+    * Maps internal promotion levels to user-friendly names.
+    *
+    * @param string $promotion_level The internal promotion level key.
+    * @return string The user-friendly name of the promotion level.
+    */
+
+    private function get_promotion_name($promotion_level)
+    {
+        /* Promotion level mappings */
+        $promotion_mapping = array(
+            '_is_highlighted' => 'Highlighted Listing',
+            '_is_home_spotlight' => 'Home Page Spotlight',
+            '_is_urgent_listing' => 'Urgent Listing',
+            '_is_featured' => 'Featured Listing',
+            '_is_free_listing' => 'Free Listing'
+        );
+
+        /* Return the mapped name, or the original key if not found */
+        return isset($promotion_mapping[$promotion_level]) ? $promotion_mapping[$promotion_level] : $promotion_level;
+    }
    
     /*
     * Sends expiry reminder emails for listings nearing expiration.
@@ -205,10 +227,14 @@ class Cron_Jobs
     
             /* Handle multiple expiries on the same day */
             $message .= '<ul>';
+
             foreach ($listing_info['expiries'] as $promotion_level => $expiry_date)
             {
-                $message .= '<li>' . $promotion_level . ' - Expires on: ' . $expiry_date . '</li>';
+                /* Get the user-friendly promotion level name */
+                $friendly_name = $this->get_promotion_name($promotion_level);
+                $message .= '<li>' . $friendly_name . ' - Expires on: ' . $expiry_date . '</li>';
             }
+            
             $message .= '</ul>';
     
             $message .= "<p><img src='{$listing_image}' alt='{$listing_title}' width='150px' height='150px'></p>";
