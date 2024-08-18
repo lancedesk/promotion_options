@@ -23,6 +23,7 @@ if ( ! defined('DEFAULT_LISTING_IMAGE') )
 require_once plugin_dir_path(__FILE__) . 'includes/class-sales-manager.php';
 require_once plugin_dir_path(__FILE__) . 'includes/class-promotion-handler.php';
 require_once plugin_dir_path(__FILE__) . 'includes/class-cron-jobs.php';
+require_once plugin_dir_path(__FILE__) . 'includes/class-locations.php';
 require_once plugin_dir_path(__FILE__) . 'includes/custom-post-type.php';
 require_once plugin_dir_path(__FILE__) . 'includes/settings-page.php';
 require_once plugin_dir_path(__FILE__) . 'includes/helper-functions.php';
@@ -32,6 +33,7 @@ require_once plugin_dir_path(__FILE__) . 'includes/locations-ajax.php';
 $promotion_handler = new Promotion_Handler();
 new Cron_Jobs();
 $sales_manager = new Sales_Manager();
+$custom_locations = new Locations();
 
 function enqueue_promotion_assets()
 {
