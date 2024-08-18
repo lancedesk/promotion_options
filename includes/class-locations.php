@@ -65,6 +65,17 @@ class Locations
     {
         $this->db = null;
     }
+
+    /**
+     * Retrieve the structure of the SQLite database.
+     * 
+     * @return array|bool Array of table schemas or false on failure.
+    */
+
+    public function get_database_structure()
+    {
+        return $this->query('SELECT * FROM sqlite_master WHERE type="table"');
+    }
 }
 
 ?>
