@@ -10,7 +10,7 @@ class Locations
         $this->connect_to_database();		add_action('wp_ajax_load_states', [$this, 'load_states']);
         add_action('wp_ajax_nopriv_load_states', [$this, 'load_states']);
         add_action('wp_ajax_load_cities', [$this, 'load_cities']);
-        add_action('wp_ajax_nopriv_load_cities', [$this, 'load_cities']);				/* Hook into the 'wp' action to run when a post is loaded */		/* add_action('admin_init', [$this, 'insert_locations_on_post_load']); */
+        add_action('wp_ajax_nopriv_load_cities', [$this, 'load_cities']);		add_action('wp_ajax_load_zipcodes', [$this, 'load_zipcodes']);		add_action('wp_ajax_nopriv_load_zipcodes', [$this, 'load_zipcodes']);				/* Hook into the 'wp' action to run when a post is loaded */		/* add_action('admin_init', [$this, 'insert_locations_on_post_load']); */
     }
     /**
     * Connect to the SQLite database.
@@ -27,7 +27,7 @@ class Locations
         {
             die('Connection failed: ' . $e->getMessage());
         }
-    }		/**     * Close the database connection.    */    public function close_connection()    {        $this->db = null;    }		/**	 * Retrieve all countries from the countries table, sorted alphabetically by name.	 * @return array|bool An array of countries sorted by name, or false on failure.	*/	public function get_all_countries()	{		$query = "SELECT id, name FROM countries ORDER BY name ASC";		$countries = $this->query($query);		/* Ensure IDs are integers */		foreach ($countries as &$country) {			$country['id'] = (int) $country['id'];		}		return $countries;	}
+    }		/**     * Close the database connection.    */    public function close_connection()    {        $this->db = null;    }		/**	 * Load zip codes based on city input (autocomplete).	*/	public function load_zipcodes()	{		$city_id = isset($_POST['city_id']) ? intval($_POST['city_id']) : 0;		$zipcode_input = isset($_POST['zipcode']) ? sanitize_text_field($_POST['zipcode']) : '';		if ($city_id && $zipcode_input)		{			/* Search for zip codes that match the input and belong to the selected city */			$query = "SELECT id, code FROM zipcodes WHERE id = :city_id AND code LIKE :zipcode_input";			$zipcodes = $this->query($query, [				'city_id' => $city_id,				'zipcode_input' => $zipcode_input . '%', /* Searching with wildcard */			]);			if ($zipcodes)			{				wp_send_json_success($zipcodes);			}			else			{				wp_send_json_error(['message' => __('No zip codes found.', 'DIRECTORYPRESS')]);			}		}		else		{			wp_send_json_error(['message' => __('Invalid input.', 'DIRECTORYPRESS')]);		}	}		/**	 * Retrieve all countries from the countries table, sorted alphabetically by name.	 * @return array|bool An array of countries sorted by name, or false on failure.	*/	public function get_all_countries()	{		$query = "SELECT id, name FROM countries ORDER BY name ASC";		$countries = $this->query($query);		/* Ensure IDs are integers */		foreach ($countries as &$country) {			$country['id'] = (int) $country['id'];		}		return $countries;	}
     /**
     * Load states based on the selected country ID.
     */
