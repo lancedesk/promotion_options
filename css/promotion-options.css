@@ -531,6 +531,11 @@
     margin-bottom: 10px;
 }
 
+#pacz-sidebar .missing-profile-fields ul
+{
+    justify-content: center;
+}
+
 .missing-profile-fields ul li
 {
     font-size: 14px;
@@ -553,5 +558,24 @@
 
 .please-fill-profile
 {
-    color: var(--red);
+    color: var(--red) !important;
+}
+
+#zipcode-suggestions
+{
+    list-style-type: none;
+    padding: 0;
+    margin: 0;
+    width: 100%;
+}
+
+#zipcode-suggestions li
+{
+    padding: 10px;
+    cursor: pointer;
+}
+
+#zipcode-suggestions li:hover 
+{
+    background-color: #f0f0f0;
 }
