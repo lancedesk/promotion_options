@@ -151,6 +151,13 @@ class Promotion_Handler
 	
     public function handle_publish_action($post_id)
     {
+		/* Check if the post type is either 'promotion_option' or 'dp_listing' */
+		$post_type = get_post_type($post_id);
+		if ($post_type !== 'promotion_option' && $post_type !== 'dp_listing')
+		{
+			return; /* Exit if the post type is not promotion_option or dp_listing */
+		}
+
         /* Check if the post is being published */
         if (get_post_status($post_id) !== 'publish')
         {
